@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block page_title %}
+Today's Forecast
+{% endblock %}
+
+{% block content %}
+<h1>Today's Forecast</h1>
+<ul>
+    <li>{{ city_name }}, {{ region }}</li>
+    <li>{{ country }}</li>
+    <li>{{ localtime }}</li>
+    <li>{{ current_condition_string }}</li>
+    <li>Current Temp (f): {{ current_temp_f }}</li>
+    <li>Feels like (f): {{ feelslike_f }}</li>
+</ul>
+<image src="{{current_condition_image}}" width="100" height="100">
+
+<h1>3-Day Forecast</h1>
+{% for day in three_day_forecast %}
+    <ul>
+        <li>{{ day.date }}</li>
+        <li>{{ day.day.condition.text }}</li>
+        <image src="{{day.day.condition.icon}}" width="50" height="50">
+        <li>Min temp (f): {{ day.day.mintemp_f }}</li>
+        <li>Max temp (f): {{ day.day.maxtemp_f }}</li>
+        
+       
+    </ul>
+{% endfor %}
+{% endblock %}
