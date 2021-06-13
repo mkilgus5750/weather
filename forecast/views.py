@@ -2,11 +2,26 @@ from django.shortcuts import render
 from django.http import HttpResponse
 import requests
 from utils import API_KEY 
+import datetime
+
 # Create your views here.
+def icon(condition):
+    if condition == 'Sunny':
+        return 'Sunny'
+    elif 'cloudy' in condition.lower() or 'overcast' in condition.lower():
+        return 'cloudy'
+    elif 'rain' in condition.lower() or 'drizzle' in condition.lower():
+        return 'rain'
+    elif 'snow' in condition.lower():
+        return 'flurries'
+    elif 'thunder' in condition.lower():
+        return 'thunder_storm'
+    else:
+        return 'sunny'
 
 def index(request, city):
     # make request
-    url = f'http://api.weatherapi.com/v1/forecast.json?key={API_KEY}&q={city}&days=3&aqi=no&alerts=no'
+    url = f'http://api.weatherapi.com/v1/forecast.json?key={API_KEY}&q={city}&days=5&aqi=no&alerts=no'
 
     headers = {
         'cache-control': "no-cache",
@@ -14,24 +29,16 @@ def index(request, city):
 
     response = requests.request("GET", url, headers=headers)
     res_data = response.json()
-    city_name = res_data['location']['name']
-    region = res_data['location']['region']
-    country = res_data['location']['country']
-    localtime = res_data['location']['localtime']
-    current_condition_string = res_data['current']['condition']['text']
-    current_condition_image = res_data['current']['condition']['icon']
-    current_temp_f = res_data['current']['temp_f']
-    feelslike_f = res_data['current']['feelslike_f']
+    location = res_data['location']
+    current = res_data['current']
     three_day_forecast = res_data['forecast']['forecastday']
+    string_days_of_week = [datetime.datetime.strptime(day['date'], '%Y-%m-%d').strftime('%a') for day in three_day_forecast]
+    condition = icon(current['condition']['text'])
 
     return render(request, 'forecast/index.html', {
-        'city_name': city_name,
-        'region': region,
-        'country': country,
-        'localtime': localtime,
-        'current_condition_string': current_condition_string,
-        'current_condition_image': current_condition_image,
-        'current_temp_f': current_temp_f,
-        'feelslike_f': feelslike_f,
-        'three_day_forecast' : three_day_forecast
+        'location': location,
+        'current': current,
+        'three_day_forecast': three_day_forecast,
+        'string_days_of_week': string_days_of_week,
+        'condition': condition
     })
